@@ -1,5 +1,5 @@
 """
-Automation to backup Spotify playlists
+Automation to backup Spotify playlists and liked songs
 """
 
 from typing import Any

@@ -34,3 +34,7 @@ exit
 ```bash
 python -m tox
 ```
+
+# Spotify Developer API
+* Auth: https://developer.spotify.com/documentation/general/guides/authorization/
+* APIs: https://developer.spotify.com/documentation/web-api/reference
