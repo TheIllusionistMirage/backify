@@ -1,0 +1,114 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy backify as a Lambda to backup Spotify library automatically
+
+Parameters:
+  BackifyS3BucketName:
+    Description: Backify S3 bucket name
+    Type: String
+  BackupS3BucketFolder:
+    Description: Backify S3 bucket prefix under which backups are stored
+    Type: String
+  TokensCacheS3BucketFolder:
+    Description: Backify S3 bucket prefix under which Spotify tokens are cached\
+    Type: String
+  LambdaName:
+    Description: Lambda function name
+    Type: String
+    AllowedValues:
+      - backify
+    Default: backify
+  LambdaMemory:
+    Description: Lambda function memory (in MB)
+    Type: Number
+    Default: 256
+  LambdaTimeout:
+    Description: Lambda function timeout (in secs)
+    Type: Number
+    Default: 900
+  LambdaContainerImageName:
+    Description: Lambda container image name
+    Type: String
+  LambdaContainerImageTag:
+    Description: Lambda container image tag
+    Type: String
+
+Resources:
+  BackifyS3Bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Sub ${BackifyS3BucketName}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  BackifyLambdaRole:
+    Type: AWS::IAM::Role
+    DependsOn:
+      - BackifyS3Bucket
+    Properties:
+      Description: IAM Role for the backify Lambda to assume
+      RoleName: !Sub ${LambdaName}-exec-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: BackifyS3Access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:Get*
+                  - logs:Describe*
+                  - logs:Put*
+                  - logs:List*
+                Resource:
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaName}:*
+                  - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaName}:log-stream:*
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:Put*
+                  - s3:List*
+                Resource:
+                  - !Sub arn:aws:s3:::${BackifyS3Bucket}/${BackupS3BucketFolder}/*
+                  - !Sub arn:aws:s3:::${BackifyS3Bucket}/${TokensCacheS3BucketFolder}/*
+
+  # TODO: Setup EventBridge automated trigger to run at desired frequency
+  BackifyLambda:
+    Type: AWS::Lambda::Function
+    DependsOn:
+      - BackifyS3Bucket
+      - BackifyLambdaRole
+    Properties:
+      FunctionName: !Ref LambdaName
+      Description: Backify Lambda function
+      Role: !GetAtt BackifyLambdaRole.Arn
+      MemorySize: !Ref LambdaMemory
+      PackageType: Image
+      Timeout: !Ref LambdaTimeout
+      Code:
+        ImageUri: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${LambdaContainerImageName}:${LambdaContainerImageTag}
+
+  BackifyLambdaLogGroup:
+    DependsOn:
+      - BackifyLambda
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${BackifyLambda}
+      RetentionInDays: 1

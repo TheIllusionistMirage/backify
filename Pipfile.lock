@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "680bd33fa7dabb84dc8be485aceaa381a1b7c6071f0203b6e5cdfa07b0a43ac1"
+            "sha256": "b57eaf1d743ae07527f65d0404e07888f73816b63568a2c93c8beea25b48da6b"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.10"
+            "python_version": "3.9.16"
         },
         "sources": [
             {
@@ -23,6 +23,22 @@
             ],
             "markers": "python_full_version <= '3.11.2'",
             "version": "==4.0.2"
+        },
+        "boto3": {
+            "hashes": [
+                "sha256:0de50b90e14e1dc3037d302f45edbf7b342ba2540f464e9ce60bad12651f02e1",
+                "sha256:631db554cf9d98a2d29c0533a7020cf967b6800437be36e4335e654a480dfcdf"
+            ],
+            "index": "pypi",
+            "version": "==1.26.113"
+        },
+        "botocore": {
+            "hashes": [
+                "sha256:acfee1faaa3ef2a6931fe574c092f596afb48f3c49e054aec7cfa8494227c031",
+                "sha256:d927c1fbf5f5caf7937b5f53eb158c708bcbe3b6aa6d46e1fbd353241f21b5b0"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==1.29.113"
         },
         "certifi": {
             "hashes": [
@@ -121,6 +137,22 @@
             "markers": "python_version >= '3.5'",
             "version": "==3.4"
         },
+        "jmespath": {
+            "hashes": [
+                "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980",
+                "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==1.0.1"
+        },
+        "python-dateutil": {
+            "hashes": [
+                "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86",
+                "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"
+            ],
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "version": "==2.8.2"
+        },
         "redis": {
             "hashes": [
                 "sha256:2c19e6767c474f2e85167909061d525ed65bea9301c0770bb151e041b7ac89a2",
@@ -136,6 +168,14 @@
             ],
             "index": "pypi",
             "version": "==2.28.2"
+        },
+        "s3transfer": {
+            "hashes": [
+                "sha256:06176b74f3a15f61f1b4f25a1fc29a4429040b7647133a463da8fa5bd28d5ecd",
+                "sha256:2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==0.6.0"
         },
         "six": {
             "hashes": [
@@ -171,6 +211,14 @@
             ],
             "markers": "python_full_version >= '3.7.2'",
             "version": "==2.15.2"
+        },
+        "autopep8": {
+            "hashes": [
+                "sha256:86e9303b5e5c8160872b2f5ef611161b2893e9bfe8ccc7e2f76385947d57a2f1",
+                "sha256:f9849cdd62108cb739dbcdbfb7fdcc9a30d1b63c4cc3e1c1f893b5360941b61c"
+            ],
+            "index": "pypi",
+            "version": "==2.0.2"
         },
         "cachetools": {
             "hashes": [
@@ -367,18 +415,18 @@
         },
         "tox": {
             "hashes": [
-                "sha256:6fa4dbd933d0e335b5392c81e9cd467630119b3669705dbad47814a93b6c9586",
-                "sha256:cd88e41aef9c71f0ba02b6d7939f102760b192b63458fbe04dbbaed82f7bf5f5"
+                "sha256:740f5209d0dec19451b951ee5b1cce4a207acdc7357af84dbc8ec35bcf2c454e",
+                "sha256:d4be558809d86fad13f4553976b0500352630a8fbfa39ea4b1ce3bd945ba680b"
             ],
             "index": "pypi",
-            "version": "==4.4.11"
+            "version": "==4.4.12"
         },
         "typing-extensions": {
             "hashes": [
                 "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb",
                 "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version < '3.10'",
             "version": "==4.5.0"
         },
         "virtualenv": {

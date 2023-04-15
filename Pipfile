@@ -4,14 +4,16 @@ verify_ssl = true
 name = 'pypi'
 
 [requires]
-python_version = '3.10'
+python_version = '3.9.16'
 
 [packages]
 requests = "2.28.2"
 spotipy = "2.23.0"
+boto3 = "1.26.112"
 
 [dev-packages]
 tox = '4.4.7'
 pytest = '7.2.1'
 pylint = '2.17.0'
 pycodestyle = '2.10.0'
+autopep8 = "*"
