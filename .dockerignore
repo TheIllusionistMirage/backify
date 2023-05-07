@@ -1,0 +1,10 @@
+.git/
+.vscode/
+.tox/
+.tokens/
+tests/
+__pycache__/
+.venv/
+.env
+
+!backify/
