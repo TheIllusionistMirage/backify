@@ -41,8 +41,23 @@ read proceed
 
 if [ "$proceed" = "yes" ]; then
     ecr_repo_name="backify"
+    backify_stack_name="backify-cf-stack"
+
     echo "Deleting AWS resources..."
-    # Delete resources
+
+    aws cloudformation delete-stack \
+        --stack-name $backify_stack_name \
+        --region $aws_region
+
+    aws ecr delete-repository \
+        --repository-name $ecr_repo_name \
+        --force \
+        --region $aws_region
+    
+    if [ "$retain_backify_s3_bucket" = "no" ]; then
+        aws s3 rm s3://mybucket --recursive
+    fi
+
     echo "Finished deleting AWS resources"
 else
     echo "You changed your mind, aborting teardown."

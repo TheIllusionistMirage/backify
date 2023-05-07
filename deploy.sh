@@ -48,7 +48,7 @@ printf "** Enter tokens cache folder name: "
 read tokens_cache_s3_bucket_folder
 
 printf "** Enter backup frequency (in days): "
-read backup_frequency_days
+read backup_frequency_in_days
 
 ecr_repo_name="backify"
 echo "* Creating ECR repository '$ecr_repo_name'..."
@@ -90,34 +90,50 @@ echo "* Deploying backify CF stack '$backify_stack_name'..."
 stack_id="$(aws cloudformation create-stack \
     --template-body file://cf-template.yaml \
     --stack-name $backify_stack_name \
-    --parameters ParameterKey=BackifyS3BucketName,ParameterValue=$backify_s3_bucket ParameterKey=BackupS3BucketFolder,ParameterValue=$backup_s3_bucket_folder ParameterKey=TokensCacheS3BucketFolder,ParameterValue=$tokens_cache_s3_bucket_folder ParameterKey=LambdaContainerImageName,ParameterValue=$lambda_container_image_name ParameterKey=LambdaContainerImageTag,ParameterValue=$lambda_container_image_tag \
+    --parameters ParameterKey=BackifyS3BucketName,ParameterValue=$backify_s3_bucket ParameterKey=BackupS3BucketFolder,ParameterValue=$backup_s3_bucket_folder ParameterKey=TokensCacheS3BucketFolder,ParameterValue=$tokens_cache_s3_bucket_folder ParameterKey=LambdaContainerImageName,ParameterValue=$lambda_container_image_name ParameterKey=LambdaContainerImageTag,ParameterValue=$lambda_container_image_tag ParameterKey=BackupFrequencyInDays,ParameterValue=$backup_frequency_in_days \
     --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
     --region $aws_region \
     --query StackId | tr -d '\"')"
 
-echo "Waiting for stack creation ('$stack_id') to complete..."
+if [ "$?" -ne 0 ]; then
+    echo "** Failed to initiate CF stack creation"
+    exit 1
+fi
+
+echo "** Waiting for stack creation ('$stack_id') to complete..."
 
 aws cloudformation wait stack-create-complete \
     --stack-name "$stack_id" \
     --region $aws_region
 
-echo "Stack creation completed"
+echo "** Stack creation completed"
 
-echo "* Finished deploying backify CF stack '$backify_stack_name'"
+echo "** Finished deploying backify CF stack '$backify_stack_name'"
 
 echo "* Authenticating to Spotfy app for the current Spotify user..."
 python authenticator.py $backify_s3_bucket $tokens_cache_s3_bucket_folder
-echo "* Finished authenticating Spotify app"
 
-# TODO start backups from the current deployment time
-echo "* Finished deploying backify! Backup will run every $backup_frequency_days days"
+if [ "$?" -ne 0 ]; then
+    echo "** Failed to authenticate Spotify app for the current Spotify user"
+    exit 1
+else
+    echo "** Finished authenticating Spotify app for the current Spotify user"
+fi
+
+echo "* Finished deploying backify! Backup will run every $backup_frequency_in_days days"
 printf "* Do you want to run backify now? (yes/no): "
 read run_now
 
 if [ "$run_now" = "yes" ]; then
     echo "** Running backify now..."
-    # run...
+    aws lambda invoke \
+        --function-name backify \
+        --invocation-type RequestResponse \
+        --payload {} \
+        --region $aws_region \
+        response.json
     echo "** Finished running backify"
+    rm response.json
 fi
 
 printf "\nAll done, KTHXBYE! ;)"

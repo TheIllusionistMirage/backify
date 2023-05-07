@@ -62,9 +62,6 @@ class SpotifyDataHelper:
         def _valid_char(char):
             return char != '/' and char != '\\'
 
-        def _get_safe_playlist_name(playlist_name: str):
-            ...
-
         print('Fetching playlists...')
 
         limit = 50
@@ -91,7 +88,7 @@ class SpotifyDataHelper:
             ]
 
             for playlist in playlist_info:
-                playlist_name = None
+                playlist_name: str
                 if playlist['name']:
                     playlist_name = ''.join(
                         ch if _valid_char(ch) else ' ' for ch in playlist['name'])

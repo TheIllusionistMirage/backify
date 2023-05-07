@@ -32,6 +32,10 @@ Parameters:
   LambdaContainerImageTag:
     Description: Lambda container image tag
     Type: String
+  BackupFrequencyInDays:
+    Description: Backup frequency in days
+    Type: Number
+    Default: 7
 
 Resources:
   BackifyS3Bucket:
@@ -76,6 +80,7 @@ Resources:
                   - logs:Get*
                   - logs:Describe*
                   - logs:Put*
+                  - logs:Create*
                   - logs:List*
                 Resource:
                   - !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${LambdaName}:*
@@ -89,7 +94,6 @@ Resources:
                   - !Sub arn:aws:s3:::${BackifyS3Bucket}/${BackupS3BucketFolder}/*
                   - !Sub arn:aws:s3:::${BackifyS3Bucket}/${TokensCacheS3BucketFolder}/*
 
-  # TODO: Setup EventBridge automated trigger to run at desired frequency
   BackifyLambda:
     Type: AWS::Lambda::Function
     DependsOn:
@@ -112,3 +116,26 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${BackifyLambda}
       RetentionInDays: 1
+
+  BackifyScheduledRule: 
+    Type: AWS::Events::Rule
+    Properties: 
+      Description: Backify scheduled rule
+      ScheduleExpression: !Sub rate(${BackupFrequencyInDays} days)
+      State: ENABLED
+      Targets: 
+        - Arn: !GetAtt BackifyLambda.Arn
+          Id: !Sub ${LambdaName}-tgt-id
+
+  InvokeLambdaPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !Ref BackifyLambda
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt BackifyScheduledRule.Arn
+
+Outputs:
+  BackifyS3BucketName:
+    Description: Backify S3 bucket name
+    Value: !Ref BackifyS3Bucket

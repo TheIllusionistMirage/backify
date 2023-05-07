@@ -1,7 +1,5 @@
 from os import getenv
 from datetime import datetime
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 
 from backify.fetch_spotify_data import SpotifyDataHelper
 from backify.s3_helper import S3Helper
